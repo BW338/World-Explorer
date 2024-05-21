@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, ImageBackground } from 'react-native';
 import { Entypo, FontAwesome5 } from '@expo/vector-icons';
 
-export default function WorldExplorer() {
+export default function WorldExplorer({ country }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [country, setCountry] = useState('india');
   const [ciudad, setCiudad] = useState('');
   const [temp, setTemp] = useState('');
   const [hora, setHora] = useState('');
@@ -12,13 +11,15 @@ export default function WorldExplorer() {
   const [clima, setClima] = useState('');
   const [imagenCiudad, setImagenCiudad] = useState('');
   const [error, setError] = useState(null);
+  const [shouldFetchData, setShouldFetchData] = useState(true);
 
   useEffect(() => {
-    console.log('1er useEffect');
-    fetchDataAndCiudad(); // Fetch data initially
-    const interval = setInterval(fetchDataAndCiudad, 7500); // Fetch data every 7.5 seconds
-    return () => clearInterval(interval); // Clear interval on unmount
-  }, []);
+    if (shouldFetchData) {
+      fetchDataAndCiudad();
+      const interval = setInterval(fetchDataAndCiudad, 7500);
+      return () => clearInterval(interval);
+    }
+  }, [shouldFetchData, country]);
 
   useEffect(() => {
     console.log('Weather Icon URL:', weatherIcon);
@@ -44,21 +45,17 @@ export default function WorldExplorer() {
 
       if (!data.error) {
         console.log('data: ' + JSON.stringify(data));
-        const states = data.data.states.map(state => state.name); // Extraer solo los nombres de los estados
+        const states = data.data.states.map(state => state.name);
         console.log('states: ' + states);
 
-        // Seleccionar un estado al azar del array states
         const randomIndex = Math.floor(Math.random() * states.length);
         const randomState = states[randomIndex];
 
-        // Eliminar las palabras no deseadas como "Autonomous City Of" o "Province" del nombre del estado
-        const cleanedState = randomState.replace(/Autonomous City Of | Province| Department| United States| Region/g, "").trim();
+        const cleanedState = randomState.replace(/Autonomous City Of | Province| Department| United States| Region| archipielago of/g, "").trim();
         console.log('Estado al Azar:', cleanedState);
 
-        // Setear el estado limpio como la ciudad
         setCiudad(cleanedState);
 
-        // Fetch de datos del clima usando el nombre del estado limpio
         const weatherResponse = await fetch(`http://api.weatherapi.com/v1/current.json?key=0e67c64fdda040e2b25195132230806&q=${cleanedState}&aqi=no`);
         const weatherData = await weatherResponse.json();
 
@@ -67,19 +64,17 @@ export default function WorldExplorer() {
         }
 
         console.log('CLIMA:', weatherData);
-        setCountry(country);
-        setTemp(weatherData.current.temp_c); // Temperatura
-        const localTime = weatherData.location.localtime; // Hora
-        const time = localTime.split(' ')[1]; // "14:34"
+        setTemp(weatherData.current.temp_c);
+        const localTime = weatherData.location.localtime;
+        const time = localTime.split(' ')[1];
         setHora(time);
 
-        // Asegúrate de que la URL del icono tenga el esquema completo
         const iconUrl = weatherData.current.condition.icon;
         const fullIconUrl = iconUrl.startsWith('//') ? `https:${iconUrl}` : iconUrl;
         setWeatherIcon(fullIconUrl);
 
         setClima(weatherData.current.condition.text);
-        getCityImage(cleanedState); // Imagen
+        getCityImage(cleanedState);
         setIsLoading(false);
         console.log("Temp:", temp);
         console.log("Horario:", time);
@@ -89,12 +84,11 @@ export default function WorldExplorer() {
       }
     } catch (error) {
       console.error("Error al obtener los datos de la ciudad y el clima:", error);
-      setIsLoading(false); // Se establece isLoading como falso en caso de error
+      setIsLoading(false);
       setError(error);
     }
   };
 
-  // CONSULTA API PARA OBTENER IMAGEN DE CIUDAD  --
   const getCityImage = (city) => {
     console.log('getCityImage');
     console.log('Buscando imagen de ', city);
@@ -110,7 +104,7 @@ export default function WorldExplorer() {
           setImagenCiudad(result.urls.regular);
           setIsLoading(false);
         } else {
-          setImagenCiudad(require('../assets/splash1.png')); 
+          setImagenCiudad(require('../assets/splash1.png'));
           throw new Error('Datos de imagen inválidos');
         }
       })
@@ -118,10 +112,18 @@ export default function WorldExplorer() {
         console.error('Error al obtener la imagen de la ciudad:', error);
         setIsLoading(false);
       });
-  }; 
+  };
 
-  // FUNCION PARA SETEAR BACKGROUND CLIMA -- 
   const determineWeatherImage = (clima) => {
+    const climaLowerCase = clima.toLowerCase(); // Convertir la cadena a minúsculas
+
+    if (climaLowerCase.includes('rain')) {
+      return require('../assets/light-rain.png');
+    }
+    if (climaLowerCase.includes('cloudy')) {
+      return require('../assets/cloudy.png');
+    }
+
     switch (clima) {
       case 'Sunny':
         return require('../assets/sunny.png');
@@ -130,21 +132,21 @@ export default function WorldExplorer() {
       case 'Rainy':
         return require('../assets/light-rain.png');
       case 'Light rain':
-        return require('../assets/light-rain.png');  
+        return require('../assets/light-rain.png');
       case 'Light drizzle':
         return require('../assets/light-drizzle.png');
       case 'Mist':
         return require('../assets/light-drizzle.png');
-      case  ('Partly cloudy'|| 'Partly Cloudy'):
-        return require('../assets/partly-cloudy.png');  
+      case ('Partly cloudy' || 'Partly Cloudy'):
+        return require('../assets/partly-cloudy.png');
       case 'Clear':
-        return require('../assets/partly-cloudy.png');  
+        return require('../assets/partly-cloudy.png');
       case 'Overcast':
-        return require('../assets/overcast.png');  
+        return require('../assets/overcast.png');
       case 'Patchy rain nearby':
-        return require('../assets/Patchy-rain-nearby.png');  
+        return require('../assets/Patchy-rain-nearby.png');
       default:
-        return require('../assets/splash.png'); 
+        return require('../assets/splash.png');
     }
   };
 
