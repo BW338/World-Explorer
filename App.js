@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { createDrawerNavigator, DrawerContentScrollView } from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import WorldExplorer from './screens/WorldExplorer';
 import Settings from './screens/settings';
 import { Foundation, Feather } from '@expo/vector-icons';
-import { View, Text, Image, StyleSheet } from 'react-native'; // Importa los componentes necesarios
+import { View, Text, Image, StyleSheet } from 'react-native';
+import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 
 const Drawer = createDrawerNavigator();
 
@@ -15,30 +16,28 @@ export default function App() {
   return (
     <NavigationContainer>
       <Drawer.Navigator 
-        initialRouteName="Home"
-     
-       
-        screenOptions={{
-          drawerStyle:{
-            backgroundColor:'#f5fffa',
-            width:300,
-            borderWidth:3,
-            borderBottomRightRadius:20,
-            borderTopRightRadius:20,
-            fontSize:60,
-          },
-          drawerLabelStyle:{
-            fontSize: 18 
-          },
-          headerStyle:{
-            backgroundColor:'#f0ffff',
-            borderBottomLeftRadius:20,
-            borderBottomRightRadius:20,
-            height:65,
-          },
-          headerTitleStyle:{
-            fontSize:22,
-            fontWeight:'300'
+        initialRouteName="WorldExplorer"
+        drawerContent={(props) => (
+          <View style={{ flex: 1 }}>
+            {/* Encabezado */}
+            <View style={styles.header}>
+              <Image
+                source={require('./assets/splash1.png')}
+                style={styles.image}
+              />
+              <Text style={styles.title}>Menu</Text>
+            </View>
+            {/* Opciones del Drawer */}
+            <DrawerContentScrollView {...props}>
+              <DrawerItemList {...props} />
+            </DrawerContentScrollView>
+          </View>
+        )}
+        drawerContentOptions={{
+          activeTintColor: '#009688',
+          inactiveTintColor: '#000000',
+          labelStyle: {
+            fontSize: 16,
           },
         }}
       >
@@ -67,7 +66,6 @@ export default function App() {
         >
           {props => <Settings {...props} country={country} setCountry={setCountry} />}
         </Drawer.Screen>
-
       </Drawer.Navigator>
     </NavigationContainer>
   );

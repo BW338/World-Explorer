@@ -123,6 +123,9 @@ export default function WorldExplorer({ country }) {
     if (climaLowerCase.includes('cloudy')) {
       return require('../assets/cloudy.png');
     }
+    if (climaLowerCase.includes('fog')) {
+      return require('../assets/light-drizzle.png');
+    }
 
     switch (clima) {
       case 'Sunny':
