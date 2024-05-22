@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, ImageBackground } from 'react-native';
 import { Entypo, FontAwesome5 } from '@expo/vector-icons';
 
-export default function WorldExplorer({ country }) {
+export default function WorldExplorer({ country , interval}) {
   const [isLoading, setIsLoading] = useState(true);
   const [ciudad, setCiudad] = useState('');
   const [temp, setTemp] = useState('');
@@ -16,10 +16,10 @@ export default function WorldExplorer({ country }) {
   useEffect(() => {
     if (shouldFetchData) {
       fetchDataAndCiudad();
-      const interval = setInterval(fetchDataAndCiudad, 7500);
-      return () => clearInterval(interval);
+      const intervalId = setInterval(fetchDataAndCiudad, interval);
+      return () => clearInterval(intervalId);
     }
-  }, [shouldFetchData, country]);
+  }, [shouldFetchData, country, interval]);
 
   useEffect(() => {
     console.log('Weather Icon URL:', weatherIcon);
@@ -73,7 +73,12 @@ export default function WorldExplorer({ country }) {
         const fullIconUrl = iconUrl.startsWith('//') ? `https:${iconUrl}` : iconUrl;
         setWeatherIcon(fullIconUrl);
 
-        setClima(weatherData.current.condition.text);
+        //Resumiendo clima //
+        const cleanedClima = weatherData.current.condition.text.replace(/Patchy | Shower| Moderate or heavy | xxxxxx| xxxx| xxxxxxx xx/g, "").trim();
+        console.log('Clima resumido:', cleanedClima);
+        
+
+        setClima(cleanedClima);
         getCityImage(cleanedState);
         setIsLoading(false);
         console.log("Temp:", temp);
@@ -126,6 +131,9 @@ export default function WorldExplorer({ country }) {
     if (climaLowerCase.includes('fog')) {
       return require('../assets/light-drizzle.png');
     }
+    if (climaLowerCase.includes('snow')) {
+      return require('../assets/snow.png');
+    }
 
     switch (clima) {
       case 'Sunny':
@@ -164,7 +172,7 @@ export default function WorldExplorer({ country }) {
             style={styles.imagen}
           />
           <View style={styles.textBox}>
-            <ImageBackground 
+            <ImageBackground
               source={determineWeatherImage(clima)}
               style={styles.backgroundImage}
               resizeMode="cover"
@@ -175,34 +183,34 @@ export default function WorldExplorer({ country }) {
                 <Text style={styles.city}>
                   {ciudad.length > 18 ? ciudad : `${ciudad}, ${country}`}
                 </Text>
-              </View> 
-
-            <View style={styles.contenedorDatos}>         
-
-              {/* CLiMA */}
-              <View style={styles.contenedorClima}> 
-                {weatherIcon ? (
-                  <Image source={{ uri: weatherIcon }} style={styles.weatherIcon} />
-                ) : (
-                  <Text>No disponible</Text>
-                )}
-                <Text style={styles.time}>{clima}</Text>
               </View>
 
-              {/* TEMPERATURA */}
-            <View style={styles.contenedorClima}>  
-               <View style={styles.contenedorTemp}>
-                <FontAwesome5 name="temperature-low" size={26} color="black" />
-                <Text style={styles.temperature}>{temp} °C</Text>             
-               </View> 
-               <View style={styles.contenedorHora}>  
-                <Entypo name="clock" size={24} color="black" /> 
-                <Text style={styles.time}>{hora}</Text>  
+              <View style={styles.contenedorDatos}>
+
+                {/* CLiMA */}
+                <View style={styles.contenedorClima}>
+                  {weatherIcon ? (
+                    <Image source={{ uri: weatherIcon }} style={styles.weatherIcon} />
+                  ) : (
+                    <Text>No disponible</Text>
+                  )}
+                  <Text style={styles.time}>{clima}</Text>
+                </View>
+
+                {/* TEMPERATURA */}
+                <View style={styles.contenedorClima}>
+                  <View style={styles.contenedorTemp}>
+                    <FontAwesome5 name="temperature-low" size={26} color="black" />
+                    <Text style={styles.temperature}>{temp} °C</Text>
+                  </View>
+                  <View style={styles.contenedorHora}>
+                    <Entypo name="clock" size={24} color="black" />
+                    <Text style={styles.time}>{hora}</Text>
+                  </View>
+
+                </View>
+
               </View>
-
-            </View> 
-
-            </View>
 
             </ImageBackground>
           </View>
@@ -212,78 +220,78 @@ export default function WorldExplorer({ country }) {
   );
 }
 const styles = StyleSheet.create({
-    container: {
+  container: {
     //  borderWidth:1,
-        //  borderColor:'green',
+    //  borderColor:'green',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 1, 
-    marginTop:'0%',
-    marginBottom:'1%',
-        },
-  imagen:{
-    flex:1,
-    borderTopLeftRadius:12,
-    borderTopRightRadius:12,
-  //  borderWidth:2,
-  //  borderColor:'blue',
-    width:400,
-    height:550,
-    resizeMode:'cover',
-    marginTop:'2%',
+    paddingHorizontal: 1,
+    marginTop: '0%',
+    marginBottom: '1%',
   },
-  contenedorDatos:{
-    flexShrink: 1, 
-    justifyContent:'space-around',
-  //  borderWidth:2,
-  //  borderColor:'red',
-    flexDirection:'row',
+  imagen: {
+    flex: 1,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    //  borderWidth:2,
+    //  borderColor:'blue',
+    width: 400,
+    height: 550,
+    resizeMode: 'cover',
+    marginTop: '2%',
+  },
+  contenedorDatos: {
+    flexShrink: 1,
+    justifyContent: 'space-around',
+    //  borderWidth:2,
+    //  borderColor:'red',
+    flexDirection: 'row',
 
   },
-  contenedorClima:{
-    alignItems:'center',
-    flexDirection:'column',
-  //  borderColor:'pink',
-  height:100,
-    marginTop:5,
-    paddingBottom:1,
+  contenedorClima: {
+    alignItems: 'center',
+    flexDirection: 'column',
+    //  borderColor:'pink',
+    height: 100,
+    marginTop: 5,
+    paddingBottom: 1,
     marginBottom: 12,
-    backgroundColor:'#fffaf0',
-    opacity:1.8,
-    borderWidth:2,
-    borderRadius:8,
-    paddingHorizontal:4,
-    alignContent:'center',
-    justifyContent:'space-around'
+    backgroundColor: '#fffaf0',
+    opacity: 1.8,
+    borderWidth: 2,
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    alignContent: 'center',
+    justifyContent: 'space-around'
   },
-  contenedorHora:{
-    alignItems:'center',
-    flexDirection:'row',
+  contenedorHora: {
+    alignItems: 'center',
+    flexDirection: 'row',
     marginBottom: 0,
-    backgroundColor:'#fffaf0',
-    opacity:0.8,
-    borderWidth:2,
-    borderRadius:8,
-    paddingHorizontal:4,
+    backgroundColor: '#fffaf0',
+    opacity: 0.8,
+    borderWidth: 2,
+    borderRadius: 8,
+    paddingHorizontal: 4,
   },
-  contenedorTemp:{
-    flexDirection:'row', 
-    justifyContent:'center', 
-    alignItems:'center',
-    borderWidth:1,
-    borderRadius:12,
-    paddingHorizontal:10,
-    borderColor:'#000000',
+  contenedorTemp: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    borderColor: '#000000',
 
   },
   textBox: {
-    flex:0.35,
+    flex: 0.35,
     backgroundColor: '#FFFFFF',
-   // padding: 2,
+    // padding: 2,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    overflow:'hidden',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -293,16 +301,16 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
-  txContainer:{
-    alignItems:'center',
-    flexDirection:'row',
-    marginTop:5,
+  txContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginTop: 5,
     marginBottom: 0,
-    backgroundColor:'#fffaf0',
-    opacity:0.8,
-    borderWidth:2,
-    borderRadius:8,
-    paddingHorizontal:4,
+    backgroundColor: '#fffaf0',
+    opacity: 0.8,
+    borderWidth: 2,
+    borderRadius: 8,
+    paddingHorizontal: 4,
   },
   city: {
     fontSize: 26,
@@ -317,7 +325,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)', // Color de la sombra del texto
     textShadowOffset: { width: 1, height: 1 }, // Desplazamiento de la sombra del texto
     textShadowRadius: 1, // Radio de la sombra del texto
-    marginLeft:5,
+    marginLeft: 5,
 
   },
   time: {
@@ -326,24 +334,24 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)', // Color de la sombra del texto
     textShadowOffset: { width: 1, height: 1 }, // Desplazamiento de la sombra del texto
     textShadowRadius: 1, // Radio de la sombra del texto
-    marginLeft:5,
-    paddingVertical:2,
+    marginLeft: 5,
+    paddingVertical: 2,
   },
   weatherIcon: {
-  //  borderWidth:1,
-    borderColor:'black',
+    //  borderWidth:1,
+    borderColor: 'black',
     width: 80,
     height: 80,
     alignSelf: 'center',
     marginTop: 0,
   },
- backgroundImage: {
-  flex: 1,
-  opacity:0.85,
-  borderWidth:2,
-//  borderColor:'red',
-  justifyContent: 'center',
-  alignItems: 'center', 
-},
+  backgroundImage: {
+    flex: 1,
+    opacity: 0.85,
+    borderWidth: 2,
+    //  borderColor:'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
 });

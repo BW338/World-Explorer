@@ -12,6 +12,7 @@ const Drawer = createDrawerNavigator();
 
 export default function App() {
   const [country, setCountry] = useState('Argentina');
+  const [interval, setInterval] = useState(85000); // Mueve el estado dentro del componente de función
 
   return (
     <NavigationContainer>
@@ -51,7 +52,7 @@ export default function App() {
             ),
           }}
         >
-          {props => <WorldExplorer {...props} country={country} />}
+          {props => <WorldExplorer {...props} country={country} interval={interval} />}
         </Drawer.Screen>
 
         <Drawer.Screen
@@ -64,7 +65,7 @@ export default function App() {
             ),
           }}
         >
-          {props => <Settings {...props} country={country} setCountry={setCountry} />}
+          {props => <Settings {...props} country={country} setCountry={setCountry} interval={interval} setInterval={setInterval} />}
         </Drawer.Screen>
       </Drawer.Navigator>
     </NavigationContainer>
