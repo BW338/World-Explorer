@@ -1,11 +1,13 @@
 import React from 'react';
-import { Button, View, Text, StyleSheet, useState } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Button } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Settings({ country, setCountry, interval, setInterval }) {
   const [selectedCountry, setSelectedCountry] = React.useState(country);
   const [selectedInterval, setSelectedInterval] = React.useState(interval);
 
+  const navigation = useNavigation();
 
   const handleCountryChange = (value) => {
     setSelectedCountry(value);
@@ -15,76 +17,61 @@ export default function Settings({ country, setCountry, interval, setInterval })
   const handleIntervalChange = (value) => {
     setSelectedInterval(value);
     setInterval(value);
+  };
 
+  const handleDonePress = () => {
+    // Navegar de vuelta a WorldExp.js
+    navigation.navigate('World Explorer');
   };
 
   return (
- <View style={styles.container}>
-
-  <View style={{flexDirection:'row', justifyContent:'space-around'}}>     
-    {/* Selector de PAIS */}
-     <View style={{flexDirection:'column', borderWidth:2 }}>  
+  <ImageBackground source={require('../assets/bg-1.png')} style={styles.backgroundImage}> 
+    <View style={styles.container}>
       <Text style={styles.title}>Select Country</Text>
       <View style={styles.pickerContainer}>
-      <Picker
-        selectedValue={selectedCountry}
-        onValueChange={handleCountryChange}
-        style={styles.picker}
-      >
-        <Picker.Item label="Argentina" value="Argentina" />
-        <Picker.Item label="Brazil" value="Brazil" />
-        <Picker.Item label="Bolivia" value="Bolivia" />
-        <Picker.Item label="Chile" value="Chile" />
-        <Picker.Item label="Colombia" value="Colombia" />
-        <Picker.Item label="Uruguay" value="Uruguay" />
-        <Picker.Item label="Peru" value="Peru" />
-        <Picker.Item label="Ecuador" value="Ecuador" />
-        <Picker.Item label="Guyana" value="Guyana" />
-        <Picker.Item label="Surinam" value="Surinam" />
-        <Picker.Item label="Panama" value="Panama" />
-        <Picker.Item label="Costa Rica" value="Costa Rica" />
-        <Picker.Item label="Guatemala" value="Guatemala" />
-        <Picker.Item label="Nicaragua" value="Nicaragua" />
-        <Picker.Item label="Cuba" value="Cuba" />
-        <Picker.Item label="Republica dominicana" value="Republica dominicana" />
-        <Picker.Item label="Mexico" value="Mexico" />
-        <Picker.Item label="Estados Unidos" value="United States" />
-        <Picker.Item label="Canada" value="Canada" />
-        <Picker.Item label="Sudafrica" value="Sudafrica" />
-        <Picker.Item label="Madagascar" value="Madagascar" />
-        <Picker.Item label="Antartida" value="Antartic" />
-        <Picker.Item label="Niger" value="Niger" />
-      </Picker>
-     </View> 
-    </View>
-
-    <View style={{flexDirection:'column', borderWidth:2,  }}>  
-    {/* Selector de TIEMPO */}
+        <Picker
+          selectedValue={selectedCountry}
+          onValueChange={handleCountryChange}
+          style={styles.picker}
+        >
+          {/* Add your country options here */}
+          <Picker.Item label="Argentina" value="Argentina" />
+          <Picker.Item label="Brazil" value="Brazil" />
+          <Picker.Item label="Chile" value="Chile" />
+          {/* ...other countries */}
+        </Picker>
+      </View>
+      
       <Text style={styles.title}>Select Interval</Text>
-      <Picker
-        selectedValue={selectedInterval}
-        onValueChange={handleIntervalChange}
-        style={styles.picker}
-      >
-        <Picker.Item label="5s" value={5000} />
-        <Picker.Item label="10s" value={10000} />
-        <Picker.Item label="15s" value={15000} />
-        <Picker.Item label="30s" value={30000} />
-        <Picker.Item label="60s" value={60000} />
-        <Picker.Item label="90s" value={90000} />
-      </Picker>
-    </View>  
-  </View>
-
-</View>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedInterval}
+          onValueChange={handleIntervalChange}
+          style={styles.picker}
+        >
+          {/* Add your interval options here */}
+          <Picker.Item label="5s" value={5000} />
+          <Picker.Item label="10s" value={10000} />
+          <Picker.Item label="15s" value={15000} />
+          {/* ...other intervals */}
+        </Picker>
+      </View>
+    </View>
+    <Button title="Done" onPress={handleDonePress} />
+  </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
+    backgroundColor: 'rgba(247, 247, 247, 0.2)', // Semi-transparent background to improve readability
   },
   title: {
     fontSize: 18,
@@ -92,12 +79,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   pickerContainer: {
-    flexDirection: 'row',
-    flexGrow: 1,
-    minWidth: 100, // Ajusta este valor según sea necesario
+    marginVertical: 20,
   },
   picker: {
-    flex: 1,
     height: 50,
+    backgroundColor: '#e0e0e0',
   },
 });

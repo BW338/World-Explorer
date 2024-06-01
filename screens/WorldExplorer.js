@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, ImageBackground, TouchableOpacity, Linking } from 'react-native';
 import { Entypo, FontAwesome5 } from '@expo/vector-icons';
 
-export default function WorldExplorer({ country , interval}) {
+export default function WorldExplorer({ country , interval, setCiudad }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [ciudad, setCiudad] = useState('');
+  const [ciudadLocal, setCiudadLocal] = useState('');
   const [temp, setTemp] = useState('');
   const [hora, setHora] = useState('');
   const [weatherIcon, setWeatherIcon] = useState('');
@@ -54,7 +54,8 @@ export default function WorldExplorer({ country , interval}) {
         const cleanedState = randomState.replace(/Autonomous City Of | Province| Department| United States| Region| archipielago of/g, "").trim();
         console.log('Estado al Azar:', cleanedState);
 
-        setCiudad(cleanedState);
+        setCiudadLocal(cleanedState);
+        setCiudad(cleanedState); // Actualizar el estado de `ciudad` en `App`
 
         const weatherResponse = await fetch(`http://api.weatherapi.com/v1/current.json?key=0e67c64fdda040e2b25195132230806&q=${cleanedState}&aqi=no`);
         const weatherData = await weatherResponse.json();
@@ -161,6 +162,11 @@ export default function WorldExplorer({ country , interval}) {
     }
   };
 
+  const openInMaps = () => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${ciudadLocal},${country}`;
+    Linking.openURL(url);
+  };
+
   return (
     <View style={styles.container}>
       {isLoading ? (
@@ -181,7 +187,7 @@ export default function WorldExplorer({ country , interval}) {
               <View style={styles.txContainer}>
                 <Entypo name="location-pin" size={32} color="black" />
                 <Text style={styles.city}>
-                  {ciudad.length > 18 ? ciudad : `${ciudad}, ${country}`}
+                  {ciudadLocal.length > 18 ? ciudadLocal : `${ciudadLocal}, ${country}`}
                 </Text>
               </View>
 
